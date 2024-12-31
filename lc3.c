@@ -203,6 +203,16 @@ int main(int argc, const char* argv[]) {
           update_flags(r0);
         }
         break;
+      case OP_BR:
+        {
+          uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+          uint16_t cond_flag = (instr >> 9) & 0x7;
+          if (cond_flag & reg[R_COND])
+          {
+            reg[R_PC] += pc_offset;
+          }
+        }
+        break;
       case OP_ST:
         {
           uint16_t r1 = (instr >> 9) & 0x7;
@@ -253,7 +263,7 @@ int main(int argc, const char* argv[]) {
         {
           uint16_t r0 = (instr >> 9) & 0x7;
           uint16_t base_reg = (instr >> 6) & 0x7;
-          uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+          uint16_t pc_offset = sign_extend(instr & 0x3F, 9);
           mem_write(reg[base_reg] + pc_offset, reg[r0]);
         }
         break;
@@ -296,7 +306,6 @@ int main(int argc, const char* argv[]) {
         break;
       case OP_TRAP:
         {
-
           reg[R_R7] = reg[R_PC];
           switch(instr & 0xFF) {
             case TRAP_GETC:
@@ -353,10 +362,9 @@ int main(int argc, const char* argv[]) {
               break;
           }
         }
+        break;
       case OP_RES:
-        abort();
       case OP_RTI:
-        abort();
       default:
         abort();
         break;
